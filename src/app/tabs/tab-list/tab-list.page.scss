@@ -1,0 +1,53 @@
+/* tab 1 styles
+ * Styles: WU Shaowei — list cards, search bar, category chips, stats row */
+
+.note-text {
+  font-size: 0.82rem;
+  color: #888;
+  margin-top: 2px;
+
+  em {
+    opacity: 0.8;
+  }
+}
+
+ion-searchbar {
+  --background: rgba(255, 255, 255, 0.9);
+  --border-radius: 12px;
+  --placeholder-color: #999;
+  padding: 0 8px;
+}
+
+/* Card-like appearance for each list item */
+ion-item {
+  --padding-start: 12px;
+  --inner-padding-end: 12px;
+  margin-bottom: 6px;
+  border-radius: 10px;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+
+  h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  p {
+    font-size: 0.85rem;
+    line-height: 1.4;
+  }
+}
+
+/* TrackBy helper for efficient list rendering is defined in component TS file */
+
+/* Last Refreshed Timestamp */
+.refresh-timestamp {
+  text-align: center;
+  padding: 8px 16px 20px;
+  font-size: 0.72rem;
+  color: #94a3b8;
+  letter-spacing: 0.03em;
+}

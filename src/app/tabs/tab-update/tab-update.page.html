@@ -1,0 +1,166 @@
+<!-- tab 3 - update / delete items page -->
+<!-- Author: WU Shaowei - made the select dropdown, edit form, delete button, confirmation alert -->
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Update / Delete</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="loadAll()" fill="clear" size="small" style="--color:white;font-size:0.8rem;font-weight:700;">
+        Refresh
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+
+  <!-- ITEM SELECTOR CARD -->
+  <ion-card style="margin-top:14px;">
+    <ion-card-header>
+      <ion-card-title>Select Item to Edit</ion-card-title>
+      <ion-card-subtitle>Choose an item from your inventory to modify or remove</ion-card-subtitle>
+    </ion-card-header>
+
+    <!-- Item Picker -->
+    <ion-item lines="full">
+      <ion-label position="stacked">Choose an Item <span class="required">*</span></ion-label>
+      <ion-select
+        interface="action-sheet"
+        placeholder="Select an item..."
+        (ionChange)="onItemSelect($event)"
+        [disabled]="allItems.length === 0">
+        <ion-select-option *ngFor="let item of allItems; trackBy: trackByItemId" [value]="item.itemId">
+          {{ item.itemName }}
+          <small style="color:#94a3b8;margin-left:8px;">{{ item.category }} · ${{ item.price }}</small>
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <!-- Edit Mode Indicator -->
+    <div *ngIf="isEditing" class="edit-indicator ion-padding">
+      <ion-chip color="primary" outline="false">
+        <ion-label>Editing: <strong>{{ editingOriginalName }}</strong></ion-label>
+      </ion-chip>
+      <div style="font-size:0.78rem;color:#64748b;margin-top:5px;font-weight:500;">
+        Make changes below and click Update or Delete.
+      </div>
+    </div>
+  </ion-card>
+
+  <!-- EDIT FORM CARD -->
+  <ion-card *ngIf="isEditing">
+    <ion-card-header>
+      <ion-card-title>Edit Item Details</ion-card-title>
+    </ion-card-header>
+
+    <form [formGroup]="updateForm">
+
+      <!-- Item Name -->
+      <ion-item lines="full">
+        <ion-label position="stacked">Item Name <span class="required">*</span></ion-label>
+        <ion-input type="text" formControlName="itemName" placeholder="Item name" [clearInput]="true"></ion-input>
+      </ion-item>
+
+      <!-- Category -->
+      <ion-item lines="full">
+        <ion-label position="stacked">Category <span class="required">*</span></ion-label>
+        <ion-select formControlName="category" interface="action-sheet">
+          <ion-select-option *ngFor="let cat of categories" [value]="cat">{{ cat }}</ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <!-- Quantity & Price Row -->
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6">
+            <ion-item lines="full">
+              <ion-label position="stacked">Quantity <span class="required">*</span></ion-label>
+              <ion-input type="text" inputmode="numeric" formControlName="quantity" placeholder="e.g. 50"></ion-input>
+            </ion-item>
+            <ion-text *ngIf="getQuantityError()">
+              <p padding-start class="error-text">{{ getQuantityError() }}</p>
+            </ion-text>
+          </ion-col>
+          <ion-col size="6">
+            <ion-item lines="full">
+              <ion-label position="stacked">Price ($) <span class="required">*</span></ion-label>
+              <ion-input type="text" inputmode="numeric" formControlName="price" placeholder="e.g. 1999"></ion-input>
+            </ion-item>
+            <ion-text *ngIf="getPriceError()">
+              <p padding-start class="error-text">{{ getPriceError() }}</p>
+            </ion-text>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+
+      <!-- Supplier Name -->
+      <ion-item lines="full">
+        <ion-label position="stacked">Supplier Name <span class="required">*</span></ion-label>
+        <ion-input type="text" formControlName="supplierName" placeholder="Supplier" [clearInput]="true"></ion-input>
+      </ion-item>
+
+      <!-- Stock Status -->
+      <ion-item lines="full">
+        <ion-label position="stacked">Stock Status <span class="required">*</span></ion-label>
+        <ion-select formControlName="stockStatus" interface="popover">
+          <ion-select-option *ngFor="let status of stockStatuses" [value]="status">{{ status }}</ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <!-- Featured Toggle -->
+      <ion-item lines="full">
+        <ion-label>Featured Item</ion-label>
+        <ion-toggle
+          formControlName="featuredItem"
+          [checked]="!!updateForm.value.featuredItem"
+          (ionChange)="onToggleFeatured($event)"
+          color="warning">
+        </ion-toggle>
+      </ion-item>
+
+      <!-- Special Note -->
+      <ion-item lines="none">
+        <ion-label position="stacked">Special Note <span class="optional">(optional)</span></ion-label>
+        <ion-textarea formControlName="specialNote" rows="2" autoGrow="true"></ion-textarea>
+      </ion-item>
+
+      <!-- Action Buttons — Premium -->
+      <div class="button-group ion-padding" style="padding-bottom:22px;">
+        <ion-button expand="block" color="primary" class="btn-update"
+                    (click)="onUpdate()" [disabled]="isProcessing || updateForm.invalid">
+          {{ isProcessing ? 'Updating...' : 'Update Item' }}
+        </ion-button>
+
+        <ion-button expand="block" color="danger" class="btn-delete"
+                    (click)="onDelete()" [disabled]="isProcessing">
+          {{ isProcessing ? 'Deleting...' : 'Delete Item' }}
+        </ion-button>
+
+        <ion-button expand="block" fill="outline" color="medium" (click)="clearForm()"
+                    style="--border-radius:12px;font-weight:700;">
+          Cancel / Clear
+        </ion-button>
+      </div>
+    </form>
+  </ion-card>
+
+  <!-- Empty State — Select Item -->
+  <div class="empty-state" *ngIf="!isEditing && allItems.length > 0">
+    <div class="empty-icon">&#9757;</div>
+    <h3>Select an Item</h3>
+    <p>Use the dropdown above to pick an item to update or delete.</p>
+  </div>
+
+  <!-- Empty State — No Items -->
+  <div class="empty-state" *ngIf="allItems.length === 0">
+    <div class="empty-icon">+</div>
+    <h3>No Items Available</h3>
+    <p>Add some items using the "Add Item" tab first!</p>
+    <ion-button fill="outline" size="small" routerLink="/tabs/add" routerDirection="root"
+                style="--border-radius:12px;font-weight:700;margin-top:18px;">
+      Go to Add Item &rarr;
+    </ion-button>
+  </div>
+
+  <!-- Help Widget -->
+  <app-help-widget [helpContent]="helpContent"></app-help-widget>
+</ion-content>

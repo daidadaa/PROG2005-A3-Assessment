@@ -1,0 +1,101 @@
+/* tab 2 styles
+ * Styles: Li Mu — form layout, input fields, validation error messages
+ * Camera styles: Native Camera Plugin integration UI */
+
+.required {
+  color: var(--danger-color);
+  font-weight: bold;
+}
+
+.optional {
+  font-size: 0.8rem;
+  opacity: 0.6;
+}
+
+.error-text {
+  font-size: 0.78rem;
+  margin: 0 !important;
+  padding-left: 16px;
+}
+
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  ion-button {
+    margin: 0;
+    --border-radius: 10px;
+    height: 48px;
+    font-size: 1rem;
+  }
+}
+
+/* Featured section styling — no icons */
+.card-title .featured-tag {
+  display: inline-block;
+}
+
+/* ==================== Camera Section (Native Plugin UI) ==================== */
+
+.camera-section {
+  border-top: 1px solid var(--ion-color-light-shade, #e4e7eb);
+  padding-bottom: 8px;
+}
+
+.camera-section-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+}
+
+.camera-buttons {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 8px;
+
+  ion-button {
+    --border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    height: 36px;
+  }
+}
+
+.image-preview {
+  position: relative;
+  text-align: center;
+  margin: 8px 0;
+
+  .preview-img {
+    max-width: 100%;
+    max-height: 220px;
+    border-radius: 12px;
+    object-fit: cover;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    border: 2px solid var(--ion-color-primary, #3880ff);
+  }
+
+  .remove-img-btn {
+    position: absolute;
+    top: -6px;
+    right: 8px;
+    --padding-start: 4px;
+    --padding-end: 4px;
+    min-height: 28px;
+    font-size: 0.75rem;
+
+    ion-icon {
+      font-size: 18px;
+    }
+  }
+}
+
+.camera-note {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--ion-color-medium, #92949c);
+  padding-left: 4px;
+}

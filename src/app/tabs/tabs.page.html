@@ -1,0 +1,21 @@
+<!-- tabs page html - bottom tab bar with 4 tabs -->
+<!-- Author: Li Mu - created the tab bar layout and styling -->
+<ion-tabs>
+  <ion-tab-bar slot="bottom" class="custom-tab-bar">
+    <ion-tab-button tab="list" [routerLink]="'/tabs/list'" class="tab-btn-custom">
+      <ion-label>Inventory</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button tab="add" [routerLink]="'/tabs/add'" class="tab-btn-custom">
+      <ion-label>Add Item</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button tab="update" [routerLink]="'/tabs/update'" class="tab-btn-custom">
+      <ion-label>Edit</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button tab="privacy" [routerLink]="'/tabs/privacy'" class="tab-btn-custom">
+      <ion-label>Privacy</ion-label>
+    </ion-tab-button>
+  </ion-tab-bar>
+</ion-tabs>

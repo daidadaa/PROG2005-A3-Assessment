@@ -1,0 +1,48 @@
+/* tab 3 styles
+ * Styles: WU Shaowei — edit form, select dropdown, delete button styling */
+
+.required {
+  color: var(--danger-color);
+  font-weight: bold;
+}
+
+.optional {
+  font-size: 0.8rem;
+  opacity: 0.6;
+}
+
+.error-text {
+  font-size: 0.78rem;
+  margin: 0 !important;
+  padding-left: 16px;
+}
+
+.edit-indicator {
+  background: rgba(56, 128, 255, 0.06);
+
+  ion-chip {
+    font-weight: 500;
+  }
+}
+
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  ion-button {
+    --border-radius: 10px;
+    height: 48px;
+    font-size: 1rem;
+  }
+}
+
+/* Current items list preview */
+.items-preview {
+  ion-item {
+    --padding-start: 12px;
+    background: white;
+    border-radius: 8px;
+    margin-bottom: 4px;
+  }
+}

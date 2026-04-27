@@ -1,0 +1,266 @@
+<!-- tab 2 - add new item page -->
+<!-- Author: Li Mu - made the form layout, input fields, category select, featured section -->
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Add New Item</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+
+  <!-- ADD ITEM FORM CARD -->
+  <ion-card style="margin-top:14px;">
+    <ion-card-header>
+      <ion-card-title>Create New Record</ion-card-title>
+      <ion-card-subtitle>Fill in all required fields marked with <span class="required" style="display:inline;">*</span></ion-card-subtitle>
+    </ion-card-header>
+
+    <form [formGroup]="addItemForm" (ngSubmit)="onSubmit()">
+
+      <!-- Item Name with Auto-Complete -->
+      <div style="position:relative">
+        <ion-item lines="full">
+          <ion-label position="stacked">
+            Item Name <span class="required">*</span>
+          </ion-label>
+          <ion-input
+            type="text"
+            formControlName="itemName"
+            placeholder="e.g. MacBook Pro 16-inch"
+            autocomplete="off"
+            [clearInput]="true"
+            (ionInput)="onItemNameInput($event)"
+            (ionBlur)="hideSuggestions()">
+          </ion-input>
+        </ion-item>
+
+        <!-- Auto-Complete Dropdown -->
+        <div *ngIf="showSuggestions && suggestions.length > 0"
+             class="autocomplete-dropdown"
+             (mousedown)="$event.preventDefault()">
+          <div class="autocomplete-item"
+               *ngFor="let s of suggestions; trackBy: trackByItemId"
+               (click)="selectSuggestion(s)">
+            <span class="ac-cat-dot" [style.background]="getCategoryColor(s.category)"></span>
+            <span>{{ s.itemName }}</span>
+            <small>{{ s.category }}</small>
+          </div>
+          <div class="ac-footer">
+            <small>Tap to pre-fill fields</small>
+          </div>
+        </div>
+
+        <!-- Validation Error -->
+        <ion-text color="danger" *ngIf="getItemNameError()">
+          <p padding-start padding-top class="error-text">{{ getItemNameError() }}</p>
+        </ion-text>
+      </div>
+
+      <!-- Category -->
+      <ion-item lines="full">
+        <ion-label position="stacked">Category <span class="required">*</span></ion-label>
+        <ion-select formControlName="category" interface="action-sheet" placeholder="Select category">
+          <ion-select-option *ngFor="let cat of categories" [value]="cat">{{ cat }}</ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <!-- Quantity & Price Row -->
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6">
+            <ion-item lines="full">
+              <ion-label position="stacked">Quantity <span class="required">*</span></ion-label>
+              <ion-input
+                type="text"
+                inputmode="numeric"
+                formControlName="quantity"
+                placeholder="e.g. 50"
+                min="0">
+              </ion-input>
+            </ion-item>
+            <ion-text color="danger" *ngIf="getQuantityError()">
+              <p padding-start class="error-text">{{ getQuantityError() }}</p>
+            </ion-text>
+            <ion-text *ngIf="!addItemForm.get('quantity')?.touched" color="medium">
+              <p padding-start style="font-size:0.75rem;margin-top:-2px;color:#94a3b8;">
+                <small>Whole number, no leading zeros</small>
+              </p>
+            </ion-text>
+          </ion-col>
+
+          <ion-col size="6">
+            <ion-item lines="full">
+              <ion-label position="stacked">Price ($) <span class="required">*</span></ion-label>
+              <ion-input
+                type="text"
+                inputmode="numeric"
+                formControlName="price"
+                placeholder="e.g. 1999"
+                min="0">
+              </ion-input>
+            </ion-item>
+            <ion-text color="danger" *ngIf="getPriceError()">
+              <p padding-start class="error-text">{{ getPriceError() }}</p>
+            </ion-text>
+            <ion-text *ngIf="!addItemForm.get('price')?.touched" color="medium">
+              <p padding-start style="font-size:0.75rem;margin-top:-2px;color:#94a3b8;">
+                <small>Whole number, no leading zeros</small>
+              </p>
+            </ion-text>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+
+      <!-- Supplier Name -->
+      <ion-item lines="full">
+        <ion-label position="stacked">Supplier Name <span class="required">*</span></ion-label>
+        <ion-input
+          type="text"
+          formControlName="supplierName"
+          placeholder="e.g. Apple Inc."
+          autocomplete="off"
+          [clearInput]="true">
+        </ion-input>
+      </ion-item>
+      <ion-text color="danger" *ngIf="getSupplierError()">
+        <p padding-start padding-top class="error-text">{{ getSupplierError() }}</p>
+      </ion-text>
+
+      <!-- Item Photo — Native Camera Plugin Integration (@capacitor/camera) -->
+      <div class="camera-section ion-padding-top">
+        <ion-label class="camera-section-title">
+          <strong>📷 Item Photo</strong>
+          <span class="optional">(optional)</span>
+        </ion-label>
+
+        <!-- Camera Buttons Row -->
+        <div class="camera-buttons" *ngIf="!itemImage">
+          <ion-button
+            (click)="takePhoto()"
+            color="primary"
+            size="small"
+            shape="round">
+            <ion-icon name="camera" slot="start"></ion-icon>
+            Take Photo
+          </ion-button>
+
+          <ion-button
+            (click)="pickFromGallery()"
+            color="secondary"
+            size="small"
+            shape="round">
+            <ion-icon name="images" slot="start"></ion-icon>
+            Gallery
+          </ion-button>
+        </div>
+
+        <!-- Image Preview with Remove Button -->
+        <div class="image-preview" *ngIf="itemImage">
+          <img [src]="itemImage" alt="Item photo preview" class="preview-img" />
+          <ion-button
+            (click)="removeImage()"
+            color="danger"
+            fill="clear"
+            size="small"
+            class="remove-img-btn">
+            <ion-icon name="close-circle"></ion-icon>
+            Remove
+          </ion-button>
+        </div>
+
+        <ion-note class="camera-note" *ngIf="!itemImage">
+          Add a photo of your inventory item using device camera or gallery.
+        </ion-note>
+      </div>
+
+      <!-- Stock Status -->
+      <ion-item lines="full">
+        <ion-label position="stacked">Stock Status <span class="required">*</span></ion-label>
+        <ion-select formControlName="stockStatus" interface="popover" placeholder="Select status">
+          <ion-select-option *ngFor="let status of stockStatuses" [value]="status">{{ status }}</ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <!-- Featured Toggle -->
+      <ion-item lines="full">
+        <ion-label>Featured Item</ion-label>
+        <ion-toggle
+          formControlName="featuredItem"
+          [checked]="!!addItemForm.value.featuredItem"
+          (ionChange)="onToggleFeatured($event)"
+          color="warning">
+        </ion-toggle>
+        <ion-note slot="end" *ngIf="addItemForm.value.featuredItem == 1" color="warning" style="font-weight:700;font-size:0.78rem;">
+          Featured
+        </ion-note>
+      </ion-item>
+
+      <!-- Special Note (Optional) -->
+      <ion-item lines="none">
+        <ion-label position="stacked">Special Note <span class="optional">(optional)</span></ion-label>
+        <ion-textarea
+          formControlName="specialNote"
+          placeholder="Any extra notes about this item..."
+          rows="2"
+          autoGrow="true">
+        </ion-textarea>
+      </ion-item>
+
+      <!-- Submit Buttons — Premium Style -->
+      <div class="button-group ion-padding" style="padding-bottom:22px;">
+        <ion-button
+          expand="block"
+          type="submit"
+          color="success"
+          class="btn-add"
+          [disabled]="isSubmitting || addItemForm.invalid">
+          {{ isSubmitting ? 'Creating...' : 'Add Item' }}
+        </ion-button>
+
+        <ion-button
+          expand="block"
+          fill="outline"
+          color="medium"
+          type="button"
+          (click)="resetForm()"
+          style="--border-radius:12px;font-weight:700;">
+          Clear Form
+        </ion-button>
+      </div>
+    </form>
+  </ion-card>
+
+  <!-- FEATURED ITEMS LIST -->
+  <ion-card *ngIf="featuredItems.length > 0">
+    <ion-card-header>
+      <ion-card-title>
+        Featured Items
+        <ion-badge color="warning" style="margin-left:8px;font-size:0.68rem;font-weight:800;">{{ featuredItems.length }}</ion-badge>
+      </ion-card-title>
+    </ion-card-header>
+
+    <ion-list>
+      <ion-item *ngFor="let item of featuredItems; trackBy: trackByItemId"
+                [class]="getCategoryClass(item.category)">
+        <div class="cat-dot" [style.background]="getCategoryColor(item.category)" slot="start"></div>
+        <ion-label>
+          <h3>{{ item.itemName }}</h3>
+          <p>{{ item.category }} | ${{ item.price }} | Qty: {{ item.quantity }}
+             | <span [class]="getStatusClass(item.stockStatus)" class="status-badge">{{ item.stockStatus }}</span>
+          </p>
+        </ion-label>
+        <ion-note slot="end" style="font-size:0.82rem;font-weight:500;">{{ item.supplierName }}</ion-note>
+      </ion-item>
+    </ion-list>
+  </ion-card>
+
+  <!-- Empty State for Featured -->
+  <div class="empty-state" *ngIf="!isSubmitting && featuredItems.length === 0">
+    <div class="empty-icon">&#9733;</div>
+    <h3>No Featured Items Yet</h3>
+    <p>Items marked as "Featured" will appear here.</p>
+  </div>
+
+  <!-- Help Widget -->
+  <app-help-widget [helpContent]="helpContent"></app-help-widget>
+</ion-content>

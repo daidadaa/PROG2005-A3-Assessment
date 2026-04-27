@@ -1,0 +1,164 @@
+<!-- tab 1 - inventory list page -->
+<!-- Author: WU Shaowei - built the whole list UI (cards, search bar, category chips, stats) -->
+<app-offline-banner />
+<ion-header>
+  <!-- Main Toolbar -->
+  <ion-toolbar color="primary">
+    <ion-title>Inventory List</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="handleRefresh($event)" fill="clear" size="small" style="--color:white;font-size:0.8rem;font-weight:700;">
+        Refresh
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <!-- Search Bar Area -->
+  <ion-toolbar color="primary" class="search-bar-container">
+    <ion-searchbar
+      [(ngModel)]="searchName"
+      (ionInput)="onSearchInput()"
+      (ionClear)="clearSearch()"
+      placeholder="Search items by name..."
+      debounce="250"
+      animated="true"
+      [showCancelButton]="true">
+    </ion-searchbar>
+  </ion-toolbar>
+
+  <!-- Category Filter Chips — Premium Scrollable Bar -->
+  <div style="padding:10px 14px;background:linear-gradient(180deg,#f8fafb,#f1f5f9);border-bottom:1px solid rgba(226,232,240,0.7);overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch;">
+    <ion-chip
+      *ngFor="let cat of availableCategories"
+      [color]="activeCategoryFilter === cat ? 'primary' : 'medium'"
+      [outline]="activeCategoryFilter !== cat"
+      (click)="setCategoryFilter(cat)"
+      style="font-size:0.76rem;height:30px;margin-right:5px;font-weight:700;letter-spacing:0.02em;">
+      <ion-label>{{ cat }}</ion-label>
+    </ion-chip>
+    <ion-chip
+      [color]="activeCategoryFilter === 'all' ? 'primary' : 'medium'"
+      [outline]="activeCategoryFilter !== 'all'"
+      (click)="setCategoryFilter('all')"
+      style="font-size:0.76rem;height:30px;font-weight:700;letter-spacing:0.02em;">
+      <ion-label>All Items</ion-label>
+    </ion-chip>
+  </div>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+
+  <!-- Pull-to-refresh with enhanced feedback -->
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content
+      pullingIcon="arrow-down"
+      pullingText="Pull to refresh data..."
+      refreshingText="Syncing with server..."></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Stats Dashboard Cards -->
+  <div class="stats-grid" *ngIf="hasLoadedOnce && !isLoading">
+    <div class="stat-card">
+      <div class="stat-value">{{ items.length }}</div>
+      <div class="stat-label">Total Items</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ filteredItems.length }}</div>
+      <div class="stat-label">Showing</div>
+    </div>
+    <div class="stat-card stat-highlight">
+      <div class="stat-value">${{ formatNumber(totalValue) }}</div>
+      <div class="stat-label">Total Value</div>
+    </div>
+  </div>
+
+  <!-- Quick Status Indicators -->
+  <div class="status-row" *ngIf="hasLoadedOnce && !isLoading">
+    <span class="status-pill status-in" *ngIf="items.length > outOfStockCount">
+      {{ items.length - lowStockCount - outOfStockCount }} In Stock
+    </span>
+    <span class="status-pill status-low" *ngIf="lowStockCount > 0">
+      {{ lowStockCount }} Low Stock
+    </span>
+    <span class="status-pill status-out" *ngIf="outOfStockCount > 0">
+      {{ outOfStockCount }} Out of Stock
+    </span>
+  </div>
+
+  <!-- Empty State — No Search Results -->
+  <div class="empty-state" *ngIf="!isLoading && hasLoadedOnce && filteredItems.length === 0 && items.length > 0">
+    <div class="empty-icon">?</div>
+    <h3>No Matching Items</h3>
+    <p>No results for "<strong>{{ searchName }}</strong>"{{ activeCategoryFilter !== 'all' ? (' in category "' + activeCategoryFilter + '"') : '' }}.</p>
+    <ion-button fill="outline" size="small" (click)="clearSearch()" style="margin-top:18px;border-radius:12px;font-weight:700;">
+      Clear Filters
+    </ion-button>
+  </div>
+
+  <!-- Empty State — No Data At All -->
+  <div class="empty-state" *ngIf="!isLoading && hasLoadedOnce && items.length === 0">
+    <div class="empty-icon">+</div>
+    <h3>No Items Yet</h3>
+    <p>Your inventory is empty.<br>Go to the <strong>Add Item</strong> tab to create your first record!</p>
+  </div>
+
+  <!-- Loading State -->
+  <div class="empty-state" *ngIf="isLoading || !hasLoadedOnce">
+    <div class="loading-dots"><span></span><span></span><span></span></div>
+    <h3>Loading Inventory...</h3>
+    <p>Fetching data from server...</p>
+  </div>
+
+  <!-- Item List — Premium Cards -->
+  <ion-list *ngIf="!isLoading && hasLoadedOnce && filteredItems.length > 0" style="padding-top:10px;">
+    <ion-item-sliding *ngFor="let item of filteredItems; trackBy: trackByItemId">
+      <ion-item detail="false" lines="full" [class]="getCategoryClass(item.category)">
+
+        <!-- Category color dot -->
+        <div class="cat-dot" [style.background]="getCategoryColor(item.category)" slot="start"></div>
+
+        <ion-label>
+          <h2>
+            {{ item.itemName }}
+            <span class="featured-tag" *ngIf="isFeatured(item)">Featured</span>
+          </h2>
+          <p>
+            <ion-badge [color]="item.stockStatus === 'In Stock' ? 'success' : item.stockStatus === 'Low Stock' ? 'warning' : 'danger'"
+                      class="cat-badge">{{ item.category }}</ion-badge>
+            Qty: <strong>{{ item.quantity }}</strong>
+            &times; $<strong>{{ item.price }}</strong>
+            = $<strong>{{ item.quantity * item.price }}</strong>
+          </p>
+          <p>
+            Supplier: {{ item.supplierName }}
+            <span [class]="getStatusClass(item.stockStatus)" class="status-badge">
+              {{ item.stockStatus }}
+            </span>
+          </p>
+          <p *ngIf="item.specialNote" class="note-text">
+            Note: {{ item.specialNote }}
+          </p>
+        </ion-label>
+      </ion-item>
+
+      <!-- Swipe Action -->
+      <ion-item-options side="end">
+        <ion-item-option color="primary" (click)="viewItemDetail(item)" style="font-weight:700;">
+          View Detail
+        </ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
+  </ion-list>
+
+  <!-- Result Footer with Last Refreshed Timestamp -->
+  <div class="result-footer" *ngIf="!isLoading && hasLoadedOnce && filteredItems.length > 0">
+    Showing {{ filteredItems.length }} of {{ items.length }} items
+    <span *ngIf="searchName"> · "{{ searchName }}"</span>
+    <span *ngIf="activeCategoryFilter !== 'all'"> · {{ activeCategoryFilter }}</span>
+  </div>
+  <div class="refresh-timestamp" *ngIf="lastRefreshed">
+    Last synced: {{ lastRefreshed }}
+  </div>
+
+  <!-- Help Widget -->
+  <app-help-widget [helpContent]="helpContent"></app-help-widget>
+</ion-content>

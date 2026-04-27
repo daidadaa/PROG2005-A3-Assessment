@@ -1,0 +1,140 @@
+/* privacy page styles
+ * Styles: Li Mu — typography, section cards, code blocks, table formatting */
+
+/* ==================== Accordion Sections ==================== */
+.accordion-body {
+  border-top: 1px solid var(--ion-color-light-shade, #e0e0e0);
+}
+
+/* ==================== Info Boxes ==================== */
+.info-box {
+  margin: 14px 0;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  line-height: 1.5;
+
+  strong {
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  &.info-blue {
+    background: rgba(56, 128, 255, 0.08);
+    border-left: 4px solid var(--ion-color-primary);
+  }
+
+  &.info-green {
+    background: rgba(45, 211, 111, 0.08);
+    border-left: 4px solid var(--ion-color-success);
+  }
+
+  &.info-yellow {
+    background: rgba(255, 196, 9, 0.12);
+    border-left: 4px solid var(--ion-color-warning);
+  }
+}
+
+/* ==================== Data Flow Diagram ==================== */
+.flow-diagram {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px 10px;
+  flex-wrap: wrap;
+
+  .flow-step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    padding: 10px 14px;
+    border-radius: 10px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    font-size: 0.82rem;
+    font-weight: 500;
+
+    ion-badge {
+      --padding-start: 6px;
+      --padding-end: 6px;
+      --border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      font-size: 0.75rem;
+    }
+  }
+
+  .flow-arrow {
+    color: var(--ion-color-medium);
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+}
+
+/* ==================== Validation Table ==================== */
+.val-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  margin: 12px 0;
+
+  th, td {
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+  }
+
+  th {
+    background: var(--ion-color-light);
+    font-weight: 600;
+  }
+
+  code {
+    background: rgba(56, 128, 255, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.82rem;
+  }
+}
+
+/* ==================== Lists ==================== */
+ul {
+  padding-left: 18px;
+
+  li {
+    margin-bottom: 8px;
+    line-height: 1.55;
+    font-size: 0.9rem;
+  }
+}
+
+ol {
+  padding-left: 18px;
+
+  li {
+    margin-bottom: 6px;
+    line-height: 1.5;
+    font-size: 0.88rem;
+  }
+}
+
+h4 {
+  color: var(--ion-color-dark);
+  font-size: 1rem;
+  margin-top: 12px;
+}
+
+code {
+  background: rgba(56, 128, 255, 0.08);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+}
+
+/* ==================== Footer ==================== */
+.page-footer {
+  opacity: 0.7;
+  font-size: 0.85rem;
+}
